@@ -1,0 +1,15 @@
+---
+- name: Prepare (loosen permissions)
+  hosts: all
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Loosen files; keep one stricter than the maximum
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+        owner: "{{ item.owner | default('root') }}"
+      loop:
+        - {path: /etc/passwd, mode: '0666'}
+        - {path: /etc/group, mode: '0664', owner: bin}
+        - {path: /etc/group-, mode: '0600'}

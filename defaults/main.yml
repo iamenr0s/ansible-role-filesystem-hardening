@@ -1,0 +1,14 @@
+---
+# --- Shared collection variables ---
+linux_hardening_mode: audit                    # audit (read-only) | remediate
+linux_hardening_confirm_remediation: false     # must be true for any change
+linux_hardening_verify: true
+linux_hardening_fail_on_error: true
+
+# --- filesystem_hardening (owner of ownership/permissions of core system files) ---
+linux_hardening_fs_enabled: true
+
+# Add items: [{path, mode, owner, group}]. mode is the MOST permissive allowed; stricter modes are kept.
+linux_hardening_fs_extra: []
+# Paths to leave alone.
+linux_hardening_fs_exclude: []

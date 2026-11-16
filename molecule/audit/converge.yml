@@ -1,0 +1,32 @@
+---
+- name: Converge (audit only)
+  hosts: all
+  become: false
+  gather_facts: true
+  tasks:
+    - name: Loosen a file
+      ansible.builtin.file:
+        path: /etc/passwd
+        mode: "0666"
+      changed_when: false
+
+    - name: Audit
+      ansible.builtin.include_role:
+        name: "{{ playbook_dir }}/../.."  # noqa: role-name[path]
+      vars:
+        linux_hardening_mode: audit
+        linux_hardening_fail_on_error: false
+
+    - name: Reported but not changed
+      ansible.builtin.stat:
+        path: /etc/passwd
+      register: __f
+      failed_when: >-
+        __f.stat.mode != '0666'
+        or '/etc/passwd' not in (linux_hardening_fs_findings | map(attribute='path') | list)
+
+    - name: Restore
+      ansible.builtin.file:
+        path: /etc/passwd
+        mode: "0644"
+      changed_when: false

@@ -1,0 +1,27 @@
+---
+- name: Verify
+  hosts: all
+  become: false
+  gather_facts: true
+  tasks:
+    - name: Stat the touched files
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop: [/etc/passwd, /etc/group, /etc/group-]
+      register: __s
+
+    - name: Excess bits removed, stricter mode and ownership handled
+      ansible.builtin.assert:
+        that:
+          - __s.results[0].stat.mode == '0644'
+          - __s.results[1].stat.mode == '0644'
+          - __s.results[1].stat.pw_name == 'root'
+          - __s.results[2].stat.mode == '0600'
+        quiet: true
+
+    - name: Audit again
+      ansible.builtin.include_role:
+        name: "{{ playbook_dir }}/../.."  # noqa: role-name[path]
+      vars:
+        linux_hardening_mode: audit
+        linux_hardening_fs_exclude: [/etc/issue]
