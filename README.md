@@ -1,4 +1,4 @@
-[![Molecule](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml) ![Ansible Role](https://img.shields.io/ansible/role/d/iamenr0s/ansible_role_filesystem_hardening) [![CodeFactor](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening/badge)](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening)
+[![Molecule](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml) ![Ansible Role](https://img.shields.io/ansible/role/d/iamenr0s/filesystem_hardening) [![CodeFactor](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening/badge)](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening)
 
 # Ansible Role: Filesystem Hardening
 
@@ -80,4 +80,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 Author: iamenr0s
 
-Galaxy: `iamenr0s.ansible_role_filesystem_hardening`
+Galaxy: `iamenr0s.filesystem_hardening`
