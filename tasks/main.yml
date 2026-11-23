@@ -9,6 +9,14 @@
         fail_msg: "linux_hardening_mode must be 'audit' or 'remediate', got '{{ linux_hardening_mode }}'"
         quiet: true
 
+    - name: Validate linux_hardening_fs_extra modes
+      ansible.builtin.assert:
+        that: >-
+          linux_hardening_fs_extra | map(attribute='mode') | map('string')
+          | reject('match', '^[0-7]{4}$') | list | length == 0
+        fail_msg: "linux_hardening_fs_extra[].mode must be a quoted 4-digit octal string, e.g. '0640'."
+        quiet: true
+
     - name: Audit (read-only)
       ansible.builtin.include_tasks: audit.yml
       when: linux_hardening_mode == 'audit'
@@ -24,11 +32,16 @@
               to proceed (run with linux_hardening_mode: audit to preview).
             quiet: true
 
-        - name: Configure
-          ansible.builtin.include_tasks: configure.yml
+        - name: Fix ownership and remove excess permissions
+          ansible.builtin.include_tasks: apply.yml
+          vars:
+            __linux_hardening_fs_check: false
 
         - name: Verify effective configuration
           ansible.builtin.include_tasks: audit.yml
           vars:
-            __lh_fs_audit_fatal: true
-          when: linux_hardening_verify | bool
+            linux_hardening_fail_on_error: true  # a re-audit after remediation must be clean
+          # Check mode changes nothing, so a re-audit would always fail.
+          when:
+            - linux_hardening_verify | bool
+            - not ansible_check_mode

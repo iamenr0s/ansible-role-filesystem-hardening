@@ -11,3 +11,10 @@
         linux_hardening_mode: remediate
         linux_hardening_confirm_remediation: true
         linux_hardening_fs_exclude: [/etc/issue]
+
+    - name: Check mode changed nothing
+      ansible.builtin.stat:
+        path: /etc/passwd
+      register: __p
+      failed_when: __p.stat.mode != '7666'
+      when: ansible_check_mode

@@ -7,5 +7,5 @@ exclude_paths:
 enable_list:
   - name[prefix]
 skip_list:
-  # Collection convention is linux_hardening_<domain>_*, not <role_name>_* (docs/architecture.md).
+  # Collection convention is linux_hardening_<domain>_*, not <role_name>_* (README: Variable names).
   - var-naming[no-role-prefix]

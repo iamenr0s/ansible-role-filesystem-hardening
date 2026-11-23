@@ -32,6 +32,8 @@ Variables use the collection-wide `linux_hardening_*` prefix (shared with siblin
 ## Modes
 `audit` (default) is read-only and sets `linux_hardening_fs_findings` (`path, expected, actual, ...`). `remediate` needs `linux_hardening_confirm_remediation: true`.
 
+`--check` with `remediate` reports what would change and skips the post-remediation re-audit. If the play disables `gather_facts`, the role gathers the `min` fact subset itself.
+
 ## Safety
 - Never adds permission bits. Ownership is set to the listed owner:group, which can break a site that deliberately runs a daemon as another owner of one of these files (exclude the path).
 - Only files that exist are touched; nothing is created.
@@ -49,7 +51,7 @@ Variables use the collection-wide `linux_hardening_*` prefix (shared with siblin
 ```
 
 ## Verification
-Molecule `default` (loosened files fixed, a stricter file kept, wrong owner fixed, idempotence, re-audit), `audit` (reports, changes nothing), `refuse`. Tested: AlmaLinux 9 and Debian 13. CI matrix: AlmaLinux 8–10, Rocky 8–10, Fedora 42–44, Debian 12–13, Ubuntu 22.04/24.04.
+Molecule `default` (`--check` dry run changes nothing, loosened files fixed, a stricter file kept, wrong owner fixed, idempotence, re-audit), `audit` (reports, changes nothing, works with `gather_facts: false`), `refuse`. Tested: AlmaLinux 9 and Debian 13. CI matrix: AlmaLinux 8–10, Rocky 8–10, Fedora 42–44, Debian 12–13, Ubuntu 22.04/24.04.
 
 ## Rollback
 No automatic rollback or backup; to revert, `chmod`/`chown` the reported files back (the audit output shows the previous values).

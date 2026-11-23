@@ -30,3 +30,48 @@
         path: /etc/passwd
         mode: "0644"
       changed_when: false
+
+    - name: Create a file for the unknown-owner case
+      ansible.builtin.file:
+        path: /tmp/unknown-owner
+        state: touch
+        mode: "0644"
+      changed_when: false
+
+    - name: Audit an extra item whose owner does not exist
+      ansible.builtin.include_role:
+        name: "{{ playbook_dir }}/../.."  # noqa: role-name[path]
+      vars:
+        linux_hardening_fail_on_error: false
+        linux_hardening_fs_extra: [{path: /tmp/unknown-owner, mode: '0644', owner: nosuchuser, group: root}]
+
+    - name: Unknown owner is reported as a finding and the other paths are still audited
+      ansible.builtin.assert:
+        that:
+          - "'/tmp/unknown-owner' in (linux_hardening_fs_findings | map(attribute='path') | list)"
+          - >-
+            (linux_hardening_fs_findings | selectattr('path', 'eq', '/tmp/unknown-owner') | first).actual
+            is search('nosuchuser')
+          - __linux_hardening_fs_result.results | length > 1  # the other managed paths were still checked
+        quiet: true
+
+- name: Converge (audit without gathered facts)
+  hosts: all
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Drop facts cached by the previous play
+      ansible.builtin.meta: clear_facts
+
+    - name: Audit
+      ansible.builtin.include_role:
+        name: "{{ playbook_dir }}/../.."  # noqa: role-name[path]
+      vars:
+        linux_hardening_fail_on_error: false
+
+    - name: Role gathered facts and audited
+      ansible.builtin.assert:
+        that:
+          - ansible_facts['os_family'] is defined
+          - linux_hardening_fs_findings is defined
+        quiet: true
