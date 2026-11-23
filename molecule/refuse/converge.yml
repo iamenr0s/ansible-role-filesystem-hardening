@@ -19,3 +19,19 @@
           ansible.builtin.assert:
             that: "'confirm_remediation' in ansible_failed_result.msg"
             quiet: true
+
+    - name: Try an extra item with a malformed mode
+      block:
+        - name: Audit with a 3-digit mode
+          ansible.builtin.include_role:
+            name: "{{ playbook_dir }}/../.."  # noqa: role-name[path]
+          vars:
+            linux_hardening_fs_extra: [{path: /etc/hostname, mode: '644', owner: root, group: root}]
+        - name: Fail if the role accepted the mode
+          ansible.builtin.fail:
+            msg: Role accepted a malformed mode.
+      rescue:
+        - name: Assert the refusal came from the mode check
+          ansible.builtin.assert:
+            that: "'4-digit octal' in ansible_failed_result.msg"
+            quiet: true

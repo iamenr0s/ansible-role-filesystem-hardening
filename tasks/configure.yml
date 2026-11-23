@@ -1,14 +1,14 @@
 ---
-- name: Gather file state
+- name: configure | Gather file state
   ansible.builtin.include_tasks: facts.yml
 
-- name: Fix ownership and remove excess permissions
+- name: configure | Fix ownership and remove excess permissions
   ansible.builtin.file:
     path: "{{ item.path }}"
     mode: "{{ item.new_mode }}"
     owner: "{{ item.owner }}"
     group: "{{ item.group }}"
     follow: false
-  loop: "{{ __lh_fs_findings }}"
+  loop: "{{ __linux_hardening_fs_findings }}"
   loop_control:
     label: "{{ item.path }}"

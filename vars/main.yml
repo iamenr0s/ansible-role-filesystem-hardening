@@ -8,10 +8,22 @@ __linux_hardening_fs_base:
   - {path: /etc/passwd-, mode: '0644', owner: root, group: root}
   - {path: /etc/group, mode: '0644', owner: root, group: root}
   - {path: /etc/group-, mode: '0644', owner: root, group: root}
-  - {path: /etc/shadow, mode: "{{ __linux_hardening_fs_shadow_mode }}", owner: root, group: "{{ __linux_hardening_fs_shadow_group }}"}
-  - {path: /etc/shadow-, mode: "{{ __linux_hardening_fs_shadow_mode }}", owner: root, group: "{{ __linux_hardening_fs_shadow_group }}"}
-  - {path: /etc/gshadow, mode: "{{ __linux_hardening_fs_shadow_mode }}", owner: root, group: "{{ __linux_hardening_fs_shadow_group }}"}
-  - {path: /etc/gshadow-, mode: "{{ __linux_hardening_fs_shadow_mode }}", owner: root, group: "{{ __linux_hardening_fs_shadow_group }}"}
+  - path: /etc/shadow
+    mode: "{{ __linux_hardening_fs_shadow_mode }}"
+    owner: root
+    group: "{{ __linux_hardening_fs_shadow_group }}"
+  - path: /etc/shadow-
+    mode: "{{ __linux_hardening_fs_shadow_mode }}"
+    owner: root
+    group: "{{ __linux_hardening_fs_shadow_group }}"
+  - path: /etc/gshadow
+    mode: "{{ __linux_hardening_fs_shadow_mode }}"
+    owner: root
+    group: "{{ __linux_hardening_fs_shadow_group }}"
+  - path: /etc/gshadow-
+    mode: "{{ __linux_hardening_fs_shadow_mode }}"
+    owner: root
+    group: "{{ __linux_hardening_fs_shadow_group }}"
   - {path: /etc/issue, mode: '0644', owner: root, group: root}
   - {path: /etc/issue.net, mode: '0644', owner: root, group: root}
   - {path: /etc/crontab, mode: '0600', owner: root, group: root}
@@ -21,4 +33,12 @@ __linux_hardening_fs_base:
   - {path: /etc/cron.monthly, mode: '0700', owner: root, group: root}
   - {path: /etc/cron.d, mode: '0700', owner: root, group: root}
 # Which octal digits are a subset of a digit (bit mask): digit a is allowed under maximum w iff a in subsets[w].
-__linux_hardening_fs_subsets: {0: [0], 1: [0, 1], 2: [0, 2], 3: [0, 1, 2, 3], 4: [0, 4], 5: [0, 1, 4, 5], 6: [0, 2, 4, 6], 7: [0, 1, 2, 3, 4, 5, 6, 7]}
+__linux_hardening_fs_subsets:
+  0: [0]
+  1: [0, 1]
+  2: [0, 2]
+  3: [0, 1, 2, 3]
+  4: [0, 4]
+  5: [0, 1, 4, 5]
+  6: [0, 2, 4, 6]
+  7: [0, 1, 2, 3, 4, 5, 6, 7]
