@@ -1,15 +1,33 @@
-[![Molecule](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml) ![Ansible Role](https://img.shields.io/ansible/role/d/iamenr0s/ansible_role_filesystem_hardening) [![CodeFactor](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening/badge)](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening)
+[![Molecule](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml/badge.svg)](https://github.com/iamenr0s/ansible-role-filesystem-hardening/actions/workflows/molecule.yml) ![Ansible Role](https://img.shields.io/ansible/role/d/iamenr0s/filesystem_hardening) [![CodeFactor](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening/badge)](https://www.codefactor.io/repository/github/iamenr0s/ansible-role-filesystem-hardening)
 
 # Ansible Role: Filesystem Hardening
 
-> Standalone copy of `filesystem_hardening` from the [iamenr0s.linux_hardening](https://github.com/iamenr0s/linux-hardening-collection) collection. Variables keep the collection-wide `linux_hardening_*` prefix.
+This role audits and hardens the ownership and permissions of core system files on Debian/Ubuntu, RHEL/AlmaLinux/RockyLinux and Fedora servers. Every item has a *maximum* mode: a stricter mode is kept, so remediation only removes permission bits and never loosens anything.
 
-Owns ownership and permissions of core system files. Every item has a *maximum* mode: a stricter mode is kept, so remediation only removes permission bits and never loosens anything.
+Features
+--------
+- Audit mode by default: read-only, and reports every deviation. Changes need `linux_hardening_confirm_remediation: true`.
+- Never adds permission bits; a file that is already stricter than required is left alone.
+- Distro-aware: shadow files are `0000 root:root` on EL/Fedora and `0640 root:shadow` on Debian/Ubuntu.
+- Only touches files that exist; missing paths and symlinks are skipped, nothing is created.
+- Extend or trim the list with `linux_hardening_fs_extra` / `linux_hardening_fs_exclude`.
+- The only role in the `iamenr0s.linux_hardening` collection that owns core system file permissions; mount options belong to `mount_hardening`.
 
 ## What it checks
-Our own selection (not a verified CIS mapping): `/etc/passwd`, `/etc/group` and their `-` backups (0644 root:root); `/etc/shadow`, `/etc/gshadow` and backups (0000 root:root on EL/Fedora, 0640 root:shadow on Debian/Ubuntu); `/etc/issue`, `/etc/issue.net` (0644); `/etc/crontab` (0600); `/etc/cron.{hourly,daily,weekly,monthly,d}` (0700). Missing paths and symlinks are skipped. Exact list: `vars/main.yml`.
+Our own selection (not a verified CIS mapping):
 
-Add items with `linux_hardening_fs_extra` (`path, mode, owner, group`), skip paths with `linux_hardening_fs_exclude`.
+| Path | Maximum mode | Owner |
+|---|---|---|
+| `/etc/passwd`, `/etc/group` and their `-` backups | `0644` | `root:root` |
+| `/etc/shadow`, `/etc/gshadow` and their `-` backups | `0000` (EL/Fedora), `0640` (Debian/Ubuntu) | `root:root` / `root:shadow` |
+| `/etc/issue`, `/etc/issue.net` | `0644` | `root:root` |
+| `/etc/crontab` | `0600` | `root:root` |
+| `/etc/cron.{hourly,daily,weekly,monthly,d}` | `0700` | `root:root` |
+
+Exact list: `vars/main.yml`. Add items with `linux_hardening_fs_extra` (`path, mode, owner, group`), skip paths with `linux_hardening_fs_exclude`.
+
+## Variable names
+Variables use the collection-wide `linux_hardening_*` prefix (shared with sibling roles) rather than `filesystem_hardening_*`. Full list: `defaults/main.yml` and `meta/argument_specs.yml`.
 
 ## Modes
 `audit` (default) is read-only and sets `linux_hardening_fs_findings` (`path, expected, actual, ...`). `remediate` needs `linux_hardening_confirm_remediation: true`.
@@ -21,8 +39,9 @@ Add items with `linux_hardening_fs_extra` (`path, mode, owner, group`), skip pat
 ## Example
 ```yaml
 - hosts: all
+  become: true
   roles:
-    - role: iamenr0s.linux_hardening.filesystem_hardening
+    - role: iamenr0s.filesystem_hardening
       vars:
         linux_hardening_mode: remediate
         linux_hardening_confirm_remediation: true
@@ -30,7 +49,7 @@ Add items with `linux_hardening_fs_extra` (`path, mode, owner, group`), skip pat
 ```
 
 ## Verification
-Molecule `default` (loosened files fixed, a stricter file kept, wrong owner fixed, idempotence, re-audit), `audit` (reports, changes nothing), `refuse`. Tested: AlmaLinux 9 and Debian 13.
+Molecule `default` (loosened files fixed, a stricter file kept, wrong owner fixed, idempotence, re-audit), `audit` (reports, changes nothing), `refuse`. Tested: AlmaLinux 9 and Debian 13. CI matrix: AlmaLinux 8–10, Rocky 8–10, Fedora 42–44, Debian 12–13, Ubuntu 22.04/24.04.
 
 ## Rollback
 No automatic rollback or backup; to revert, `chmod`/`chown` the reported files back (the audit output shows the previous values).
@@ -80,4 +99,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 Author: iamenr0s
 
-Galaxy: `iamenr0s.ansible_role_filesystem_hardening`
+Galaxy: `iamenr0s.filesystem_hardening`
