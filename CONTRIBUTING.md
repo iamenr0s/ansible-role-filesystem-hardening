@@ -9,7 +9,6 @@ Thanks for taking the time to contribute to `iamenr0s.filesystem_hardening`!
 
    ```bash
    pip3 install ansible molecule "molecule-plugins[podman]" yamllint ansible-lint
-   ansible-galaxy collection install -r requirements.yml
    ```
 
 ## Making changes

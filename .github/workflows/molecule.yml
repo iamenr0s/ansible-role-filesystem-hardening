@@ -80,6 +80,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
         with:
           fetch-depth: 0
-      - uses: ansible-actions/ansible-galaxy-action@388fe24563eb7889730a1c10587a8acd005bd42a  # v1.2.0
+      # The ansible-galaxy-action container runs Python 3.15, which breaks ansible-core.
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7
         with:
-          galaxy_api_key: ${{ secrets.GALAXY_API_KEY }}
+          python-version: "3.14"
+      - run: pip install ansible-core
+      - run: >-
+          ansible-galaxy role import --api-key "$GALAXY_API_KEY"
+          --branch main
+          "${GITHUB_REPOSITORY%/*}" "${GITHUB_REPOSITORY#*/}"
+        env:
+          GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
