@@ -1,6 +1,6 @@
 ---
 # Read-only. Sets __lh_fs_findings: [{path, expected, actual, new_mode, owner, group}] for deviating items.
-- name: Stat the managed paths
+- name: facts | Stat the managed paths
   ansible.builtin.stat:
     path: "{{ item.path }}"
     follow: false
@@ -11,7 +11,7 @@
   register: __lh_fs_stats
 
 # Per octal digit: the digit must be a bit-subset of the maximum; new_mode keeps only the allowed bits.
-- name: Compare with desired state
+- name: facts | Compare with desired state
   ansible.builtin.set_fact:
     __lh_fs_findings_json: >-
       {%- set out = [] -%}
@@ -30,6 +30,6 @@
       {%- endfor -%}
       {{ out | to_json }}
 
-- name: Normalise findings
+- name: facts | Normalise findings
   ansible.builtin.set_fact:
     __lh_fs_findings: "{{ __lh_fs_findings_json | from_json }}"
