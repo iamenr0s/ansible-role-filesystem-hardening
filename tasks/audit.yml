@@ -14,12 +14,12 @@
       {{ linux_hardening_fs_findings + [{
            'path': __want.path,
            'expected': 'mode <= ' ~ __want.mode ~ ' ' ~ __want.owner ~ ':' ~ __want.group,
-           'actual': __have.mode ~ ' ' ~ __have.pw_name ~ ':' ~ __have.gr_name,
+           'actual': item.msg if item is failed else __have.mode ~ ' ' ~ __have.pw_name ~ ':' ~ __have.gr_name,
            'owner': __want.owner, 'group': __want.group}] }}
   loop: "{{ __linux_hardening_fs_result.results }}"
   loop_control:
     label: "{{ item.item.item.path }}"
-  when: item.diff.before != item.diff.after
+  when: item is failed or item.diff.before != item.diff.after
   vars:
     __want: "{{ item.item.item }}"  # file result -> stat result -> managed item
     __have: "{{ item.item.stat }}"
