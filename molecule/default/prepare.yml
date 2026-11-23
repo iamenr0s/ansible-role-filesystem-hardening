@@ -10,6 +10,6 @@
         mode: "{{ item.mode }}"
         owner: "{{ item.owner | default('root') }}"
       loop:
-        - {path: /etc/passwd, mode: '0666'}
+        - {path: /etc/passwd, mode: '7666'}  # setuid, setgid and sticky must all be removed
         - {path: /etc/group, mode: '0664', owner: bin}
         - {path: /etc/group-, mode: '0600'}

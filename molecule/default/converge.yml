@@ -16,5 +16,5 @@
       ansible.builtin.stat:
         path: /etc/passwd
       register: __p
-      failed_when: __p.stat.mode != '0666'
+      failed_when: __p.stat.mode != '7666'
       when: ansible_check_mode
