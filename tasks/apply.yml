@@ -1,0 +1,42 @@
+---
+# Checks (audit: __linux_hardening_fs_check=true) or fixes each managed path with one file task:
+# the symbolic mode only removes bits the maximum does not allow, so stricter modes are kept.
+# Audit runs it in check mode with diff on: a deviation is a before/after difference, and the task stays 'ok'.
+- name: apply | Gather the minimal fact subset
+  ansible.builtin.setup:
+    gather_subset: [min]
+  when: ansible_facts['os_family'] is not defined
+
+- name: apply | Stat the managed paths
+  ansible.builtin.stat:
+    path: "{{ item.path }}"
+    follow: false
+    get_checksum: false
+  loop: >-
+    {{ (__linux_hardening_fs_base + linux_hardening_fs_extra)
+       | rejectattr('path', 'in', linux_hardening_fs_exclude) | list }}
+  loop_control:
+    label: "{{ item.path }}"
+  register: __linux_hardening_fs_stats
+
+- name: apply | Remove excess permission bits and set ownership
+  ansible.builtin.file:
+    path: "{{ item.item.path }}"
+    mode: "{{ [__u, __g, __o] | join(',') }}"
+    owner: "{{ item.item.owner }}"
+    group: "{{ item.item.group }}"
+    follow: false
+  check_mode: "{{ __linux_hardening_fs_check or ansible_check_mode }}"
+  diff: "{{ __linux_hardening_fs_check }}"
+  changed_when: not __linux_hardening_fs_check and __linux_hardening_fs_result is changed
+  loop: "{{ __linux_hardening_fs_stats.results | selectattr('stat.exists') | rejectattr('stat.islnk') | list }}"
+  loop_control:
+    label: "{{ item.item.path }}"
+  register: __linux_hardening_fs_result
+  vars:
+    # Maximum '0644' -> 'u-xs,g-wxs,o-wxt'; '0700' -> 'u-s,g-rwxs,o-rwxt'.
+    __max: "{{ item.item.mode }}"  # digits: special, user, group, other
+    __drop: "{{ __linux_hardening_fs_drop }}"
+    __u: "u-{{ __drop[__max[1]] }}{{ 's' if 'r' in __drop[__max[0]] else '' }}"
+    __g: "g-{{ __drop[__max[2]] }}{{ 's' if 'w' in __drop[__max[0]] else '' }}"
+    __o: "o-{{ __drop[__max[3]] }}{{ 't' if 'x' in __drop[__max[0]] else '' }}"

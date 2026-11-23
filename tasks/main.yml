@@ -32,13 +32,15 @@
               to proceed (run with linux_hardening_mode: audit to preview).
             quiet: true
 
-        - name: Configure
-          ansible.builtin.include_tasks: configure.yml
+        - name: Fix ownership and remove excess permissions
+          ansible.builtin.include_tasks: apply.yml
+          vars:
+            __linux_hardening_fs_check: false
 
         - name: Verify effective configuration
           ansible.builtin.include_tasks: audit.yml
           vars:
-            __linux_hardening_fs_audit_fatal: true
+            linux_hardening_fail_on_error: true  # a re-audit after remediation must be clean
           # Check mode changes nothing, so a re-audit would always fail.
           when:
             - linux_hardening_verify | bool
