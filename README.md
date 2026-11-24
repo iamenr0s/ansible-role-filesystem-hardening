@@ -38,6 +38,20 @@ Variables use the collection-wide `linux_hardening_*` prefix (shared with siblin
 - Never adds permission bits. Ownership is set to the listed owner:group, which can break a site that deliberately runs a daemon as another owner of one of these files (exclude the path).
 - Only files that exist are touched; nothing is created.
 
+## Role Variables
+
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `linux_hardening_mode` | str | `audit` | audit is read-only. Choices: `audit`, `remediate`. |
+| `linux_hardening_confirm_remediation` | bool | `false` | Must be true before remediate changes anything. |
+| `linux_hardening_verify` | bool | `true` | Re-audit after remediation. |
+| `linux_hardening_fail_on_error` | bool | `true` | Fail the play when audit finds deviations. |
+| `linux_hardening_fs_enabled` | bool | `true` | Run the role. |
+| `linux_hardening_fs_extra` | list of dict | `[]` | Extra items; mode is the most permissive allowed. |
+| `linux_hardening_fs_exclude` | list of path | `[]` | Paths to leave alone. |
+
+**Idempotent:** yes. A second `remediate` run reports no changes (the Molecule `idempotence` step checks this).
+
 ## Example
 ```yaml
 - hosts: all

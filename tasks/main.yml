@@ -3,12 +3,6 @@
 - name: Run filesystem_hardening
   when: linux_hardening_fs_enabled | bool
   block:
-    - name: Validate linux_hardening_mode
-      ansible.builtin.assert:
-        that: linux_hardening_mode in ['audit', 'remediate']
-        fail_msg: "linux_hardening_mode must be 'audit' or 'remediate', got '{{ linux_hardening_mode }}'"
-        quiet: true
-
     - name: Validate linux_hardening_fs_extra modes
       ansible.builtin.assert:
         that: >-
