@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- Change: dropped the `linux_hardening_mode` assert that repeated `meta/argument_specs.yml` (which already rejects other values).
+- Docs: README adds a Role Variables table, idempotency and check-mode notes.
+- CI: every platform in `meta/main.yml` gates the release (no `continue-on-error` legs); lint runs the pinned pre-commit hooks; pre-commit adds gitleaks.
 - Fix: `--check` with `remediate` no longer fails in the re-audit.
 - Fix: reject `linux_hardening_fs_extra[].mode` values that are not 4 octal digits.
 - Fix: work with `gather_facts: false` (gathers the `min` subset).
